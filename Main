@@ -1,0 +1,51 @@
+package generaWav;
+import java.io.*;
+import java.util.logging.Level;
+/**
+ * 
+ * @author James
+ * @Metodo Principal que se encarga de generar la onda apartir de parametros que se leen usando {@link RandomAccessFile} ;
+ * 
+ *
+ */
+public class EjecutaWAV {
+	@SuppressWarnings("resource")
+	/**
+	 * @Metodo MAIN
+	 */
+	public static void main(String[]args) throws IOException {	
+		final int iFrecuenciaMuestreo;
+		final int iArmonico;
+		String nombreArch;
+		String buff;
+		final GeneraWAV generador;
+	    final int iTiempo ;
+	    generador = new GeneraWAV();
+	
+		try {
+/**
+* @ Clase RamdomFile Lee el archivo txt mandado desde consola que pasa los paramatros a la clase Genera.
+*/
+			RandomAccessFile arch;
+			arch=new RandomAccessFile(args[0],"r");
+			try {
+				/**
+				 * Read line lee como cadena de texto cada dato encontrado en el archivo asi usando la misma para dar salto de linea 
+				 * y leer el siguiente dato
+				 */
+				nombreArch = arch.readLine();
+				buff = arch.readLine();
+				iFrecuenciaMuestreo=Integer.valueOf(buff.trim());
+				buff = arch.readLine();
+				iArmonico=Integer.valueOf(buff.trim());
+				buff = arch.readLine();
+				iTiempo=Integer.valueOf(buff.trim());
+				generador.escribe(nombreArch, iTiempo, iFrecuenciaMuestreo, iArmonico);
+			} catch (IOException e) {
+				throw new java.lang.IllegalArgumentException();
+			} 
+		} catch(FileNotFoundException ex) {
+			java.util.logging.Logger.getLogger (EjecutaWAV.class.getName()).log(Level.SEVERE , null , ex);
+									      }		
+}
+}

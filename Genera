@@ -1,0 +1,199 @@
+package generaWav;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+/**
+ * @version 1.0 api que evalua los argumentos del txt y verifica y lanza exepciones.
+ * @author Jimenez Ramos Jaime
+ * @Creacion de una onda Senoidal apartir de datos dados
+ */
+
+public class GeneraWAV {
+	/**
+	 * @param nombre              Nombre del archivo a crear
+	 * @param iTiempo             Tiempo del audio a ejecutar
+	 * @param iFrecuenciaMuestreo La frecuencia en la cual la onda va a iterar
+	 *                            apartir del for
+	 * @param iArmonico           el Tiempo armonico de la onda
+	 */
+	public void escribe(String nombre, int iTiempo, int iFrecuenciaMuestreo, int iArmonico) {
+		if (iTiempo <= 0)
+			throw new java.lang.IllegalArgumentException() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+			};
+		if (iTiempo <= 0)
+			throw new NullPointerException() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+			};
+		if (iFrecuenciaMuestreo <= 0)
+			throw new java.lang.IllegalArgumentException() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+			};
+		if (iFrecuenciaMuestreo <= 0)
+			throw new NullPointerException() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+			};
+		if (iArmonico <= 0)
+			throw new java.lang.IllegalArgumentException() {
+
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+			};
+		if (iArmonico > 40000)
+				throw new java.lang.IllegalArgumentException() {
+
+					/**
+					 * 
+					 */
+				private static final long serialVersionUID = 1L;
+			};
+		if (iArmonico <= 0)
+			throw new NullPointerException() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+			};
+		if (iFrecuenciaMuestreo >= 44200)
+			throw new java.lang.IllegalArgumentException() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+			};
+		if (iFrecuenciaMuestreo <= 0)
+			throw new NullPointerException() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+			};
+
+		final short Pcm = 1 , canales = 1 , Bytes_m = 2 , Bits_m = 16;
+		final char riff = 0 , Wave = 0 , DATA = 0;
+		final int tiempo = iTiempo/2, Formato = 16 , frecuencia = iFrecuenciaMuestreo / 2 , 
+				F_muestreo = (frecuencia) * 2 ,
+				NumeroTotal = F_muestreo * tiempo, tamano = NumeroTotal - 8, 
+				Bytes_archivos = (NumeroTotal) * (Bits_m), amplitud=32000;
+		/**
+		 * @author James Clase Herramientas es usada para convertir de big endian a
+		 *         little endian y viceversa. pudiendo asi transformar, leer cualquier
+		 *         tipo de dato solo mandando llamar al objeto y al constructor
+		 */
+
+		Herramientas2 conv = new Herramientas2();
+		DataOutputStream WAV;
+		try {
+			WAV = new DataOutputStream(new FileOutputStream(nombre));
+			byte b[];
+			b = conv.conversor_char(riff, true);
+			WAV.writeBytes("RIFF");
+			b = conv.conversor_int(tamano, false);
+			WAV.write(b);
+			b = conv.conversor_char(Wave, true);
+			WAV.writeBytes("WAVEfmt ");
+			b = conv.conversor_int(Formato, false);
+			WAV.write(b);
+			b = conv.conversor_short(Pcm, false);
+			WAV.write(b);
+			b = conv.conversor_short(canales, false);
+			WAV.write(b);
+			b = conv.conversor_int(frecuencia, false);
+			WAV.write(b);
+			b = conv.conversor_int(F_muestreo, false);
+			WAV.write(b);
+			b = conv.conversor_short(Bytes_m, false);
+			WAV.write(b);
+			b = conv.conversor_short(Bits_m, false);
+			WAV.write(b);
+			b = conv.conversor_char(DATA, true);
+			WAV.writeBytes("data");
+			b = conv.conversor_int(Bytes_archivos, false);
+			WAV.write(b);
+			/**
+			 * Arrelgo de tipo short guardado en la variable Muestras , este es un arreglo
+			 * anidado uno lee los datos y hace las conversiones necesarias usando Math.sin
+			 * Y el segundo for recupera los datos escribiendolos en el .WAV
+			 */
+			final short Muestras[] = new short[NumeroTotal];
+			for (int k = 0; k < NumeroTotal; k++) {
+				Muestras[k]=(short)(amplitud*Math.sin(2 * Math.PI / frecuencia * k * iArmonico));
+				b = conv.conversor_short(Muestras[k], false);
+				for (int iConta = 0; iConta < 2; iConta++) {
+					WAV.writeByte(b[iConta]);
+				}
+			}
+		} catch (IOException e) {
+		}
+	}
+
+	final class Herramientas2 {
+		/**
+		 * 
+		 * @param valor
+		 * @param bigEndian
+		 * @return
+		 */
+		public byte[] conversor_int(int valor, boolean bigEndian) {
+			final byte[] resultado;
+			final byte b3 = (byte) ((valor >> 24) & 0xFF);
+			final byte b2 = (byte) ((valor >> 16) & 0xFF);
+			final byte b1 = (byte) ((valor >> 8) & 0xFF);
+			final byte b0 = (byte) ((valor) & 0xFF);
+			if (bigEndian) {
+				resultado = new byte[] { b3, b2, b1, b0 };
+			} else {
+				resultado = new byte[] { b0, b1, b2, b3 };
+			}
+			return resultado;
+		}
+		/**
+		 * 
+		 * @param valor
+		 * @param bigEndian
+		 * @return
+		 */
+		public byte[] conversor_char(char valor, boolean bigEndian) {
+
+			final byte[] resultado;
+			final byte b0 = (byte) ((valor) & 0xFF);
+			if (bigEndian) {
+				resultado = new byte[] { b0 };
+			} else {
+				resultado = new byte[] { b0, };
+			}
+			return resultado;
+		}
+		/**
+		 * 
+		 * @param valor
+		 * @param bigEndian
+		 * @return
+		 */
+		public byte[] conversor_short(short valor, boolean bigEndian) {
+			final byte[] resultado;
+			final byte b1 = (byte) ((valor >> 8) & 0xFF);
+			final byte b0 = (byte) ((valor) & 0xFF);
+			if (bigEndian) {
+				resultado = new byte[] { b1, b0 };
+			} else {
+				resultado = new byte[] { b0, b1 };
+			}
+			return resultado;
+		}
+	}
+}
